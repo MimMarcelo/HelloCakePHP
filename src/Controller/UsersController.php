@@ -120,4 +120,26 @@ class UsersController extends AppController {
         return $this->redirect($this->Auth->logout());
     }
 
+    public function isAuthorized($user) {
+        $action = $this->request->params['action'];
+        
+        // As ações add e index são permitidas sempre.
+        if (in_array($action, ['index', 'add'])) {
+            return true;
+        }
+
+        // Todas as outras ações requerem um id.
+        if (!$this->request->getParam('pass.0')) {
+            return false;
+        }
+
+        // Checa se o bookmark pertence ao user atual.
+        $id = $this->request->getParam('pass.0');
+        $auxUser = $this->Users->get($id);
+        if ($user['id'] == $auxUser->id) {
+            return true;
+        }
+        return parent::isAuthorized($user);
+    }
+
 }
